@@ -167,7 +167,6 @@
             this.Rbtn_10000Hz.Name = "Rbtn_10000Hz";
             this.Rbtn_10000Hz.Size = new System.Drawing.Size(71, 18);
             this.Rbtn_10000Hz.TabIndex = 4;
-            this.Rbtn_10000Hz.TabStop = true;
             this.Rbtn_10000Hz.Text = "x10 kHz";
             this.Rbtn_10000Hz.UseVisualStyleBackColor = true;
             this.Rbtn_10000Hz.CheckedChanged += new System.EventHandler(this.Rbtn_10000Hz_CheckedChanged);
@@ -175,6 +174,7 @@
             // Rbtn_1000Hz
             // 
             this.Rbtn_1000Hz.AutoSize = true;
+            this.Rbtn_1000Hz.Checked = true;
             this.Rbtn_1000Hz.Location = new System.Drawing.Point(6, 93);
             this.Rbtn_1000Hz.Name = "Rbtn_1000Hz";
             this.Rbtn_1000Hz.Size = new System.Drawing.Size(64, 18);
@@ -191,7 +191,6 @@
             this.Rbtn_100Hz.Name = "Rbtn_100Hz";
             this.Rbtn_100Hz.Size = new System.Drawing.Size(71, 18);
             this.Rbtn_100Hz.TabIndex = 2;
-            this.Rbtn_100Hz.TabStop = true;
             this.Rbtn_100Hz.Text = "x100 Hz";
             this.Rbtn_100Hz.UseVisualStyleBackColor = true;
             this.Rbtn_100Hz.CheckedChanged += new System.EventHandler(this.Rbtn_100Hz_CheckedChanged);
@@ -203,7 +202,6 @@
             this.Rbtn_10Hz.Name = "Rbtn_10Hz";
             this.Rbtn_10Hz.Size = new System.Drawing.Size(64, 18);
             this.Rbtn_10Hz.TabIndex = 1;
-            this.Rbtn_10Hz.TabStop = true;
             this.Rbtn_10Hz.Text = "x10 Hz";
             this.Rbtn_10Hz.UseVisualStyleBackColor = true;
             this.Rbtn_10Hz.CheckedChanged += new System.EventHandler(this.Rbtn_10Hz_CheckedChanged);
@@ -215,7 +213,6 @@
             this.Rbtn_1Hz.Name = "Rbtn_1Hz";
             this.Rbtn_1Hz.Size = new System.Drawing.Size(57, 18);
             this.Rbtn_1Hz.TabIndex = 0;
-            this.Rbtn_1Hz.TabStop = true;
             this.Rbtn_1Hz.Text = "x1 Hz";
             this.Rbtn_1Hz.UseVisualStyleBackColor = true;
             this.Rbtn_1Hz.CheckedChanged += new System.EventHandler(this.Rbtn_1Hz_CheckedChanged);

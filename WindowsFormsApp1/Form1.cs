@@ -5,7 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
-using NationalInstruments.DAQmx;
+//using NationalInstruments.DAQmx;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 
@@ -13,11 +13,12 @@ namespace WindowsFormsApp1
 {
     public partial class Form1 : Form
     {
-        private Task myTask;
-        private AnalogSingleChannelWriter writer;
 
-        private int MaxA2Drate = 250000;
-        private int maxBufferSize = 2080; //Fix this buffer value
+        //private Task myTask;
+        //private AnalogSingleChannelWriter writer;
+
+        private int MaxA2Drate = 833000;
+        private int maxBufferSize = 8191; //Fix this buffer value
         private int MAXvoltageRange;
         private int MINvoltageRange;
         private bool buttonOnOff;
@@ -33,19 +34,6 @@ namespace WindowsFormsApp1
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            //Get device list
-            //PopulateDevices();
-
-            //Add all the waves to the combobox
-            Cbx_Waveform.Items.Add("Sine");
-            Cbx_Waveform.Items.Add("Square");
-            Cbx_Waveform.Items.Add("Triangle");
-            Cbx_Waveform.Items.Add("Sawtooth");
-            Cbx_Waveform.Items.Add("TTL");
-
-            //Make sine default
-            Cbx_Waveform.SelectedIndex = 0;
-
             cht_Data.Series.Clear(); //Clear the chart during form load
             cht_Data.ChartAreas.Clear(); //Clear data area
 
@@ -58,28 +46,43 @@ namespace WindowsFormsApp1
             waveformSeries.BorderWidth = 2;
             cht_Data.Series.Add(waveformSeries);
 
-            try
-            {
-                myTask = new Task();
-                if (myTask != null)
-                {
-                    for (int i = 0; i < aoChannels.Length; i++)
-                    {
-                        //need to create an AO channel for the task from the selected channel of the combobox
-                        string channels = Cbx_Devices.Items[i].ToString();
-                        myTask.AOChannels.CreateVoltageChannel(channels, "", -10, 10, AOVoltageUnits.Volts);
-                    }
-                }
-            }
-            catch (Exception ex) { MessageBox.Show("There was an error setting up the Analog Channels", ex.Message); }
+            //Get device list
+            //PopulateDevices();
+
+            //Add all the waves to the combobox
+            Cbx_Waveform.Items.Add("Sine");
+            Cbx_Waveform.Items.Add("Square");
+            Cbx_Waveform.Items.Add("Triangle");
+            Cbx_Waveform.Items.Add("Sawtooth");
+            Cbx_Waveform.Items.Add("TTL");
+
+            //Make sine 100hz default
+            Cbx_Waveform.SelectedIndex = 0;
+            Rbtn_1000Hz.Checked = true;
+            NumUD_Frequency.Value = 10;
+
+            //try
+            //{
+            //    myTask = new Task();
+            //    if (myTask != null)
+            //    {
+            //        for (int i = 0; i < aoChannels.Length; i++)
+            //        {
+            //            //need to create an AO channel for the task from the selected channel of the combobox
+            //            string channels = Cbx_Devices.Items[i].ToString();
+            //            myTask.AOChannels.CreateVoltageChannel(channels, "", -10, 10, AOVoltageUnits.Volts);
+            //        }
+            //    }
+            //}
+            //catch (Exception ex) { MessageBox.Show("There was an error setting up the Analog Channels", ex.Message); }
 
             //FINISH DOING STUFF WITH THE TASK
             //NEED TO WTACH THE SAMPLE RATE
 
-            myTask.Timing.ConfigureSampleClock("", sampleRate, SampleClockActiveEdge.Rising, SampleQuantityMode.ContinuousSamples, samplesPerChannel)
-            myTask.AOChannels.All.UseOnlyOnBoardMemory = true;
+            //myTask.Timing.ConfigureSampleClock("", sampleRate, SampleClockActiveEdge.Rising, SampleQuantityMode.ContinuousSamples, samplesPerChannel)
+            //myTask.AOChannels.All.UseOnlyOnBoardMemory = true;
 
-            writer = new AnalogSingleChannelWriter(myTask.Stream);
+            //writer = new AnalogSingleChannelWriter(myTask.Stream);
 
             //Default = sine
             NumUD_Amplitude.Value = 5;
@@ -93,6 +96,8 @@ namespace WindowsFormsApp1
             Btn_Output.BackColor = Color.Red;
             Btn_Output.Text = "OFF";
 
+
+
         }
 
         private void PopulateDevices()
@@ -100,38 +105,38 @@ namespace WindowsFormsApp1
             Cbx_Devices.Items.Clear();
 
             //get all channels for AO
-            aoChannels = DaqSystem.Local.GetPhysicalChannels(PhysicalChannelTypes.AO, PhysicalChannelAccess.External);
+            //aoChannels = DaqSystem.Local.GetPhysicalChannels(PhysicalChannelTypes.AO, PhysicalChannelAccess.External);
 
-            //Check for channels and add to combobox
-            if (aoChannels.Length > 0)
-            {
-                // Iterate over all the AO channels and add them to the ComboBox
-                foreach (string channel in aoChannels)
-                {
-                    Cbx_Devices.Items.Add(channel);
-                }
-                Cbx_Devices.SelectedIndex = 0;
-            }
-            else
-            {
-                MessageBox.Show("No Analog Output channels found.");
-            }
+            ////Check for channels and add to combobox
+            //if (aoChannels.Length > 0)
+            //{
+            //    // Iterate over all the AO channels and add them to the ComboBox
+            //    foreach (string channel in aoChannels)
+            //    {
+            //        Cbx_Devices.Items.Add(channel);
+            //    }
+            //    Cbx_Devices.SelectedIndex = 0;
+            //}
+            //else
+            //{
+            //    MessageBox.Show("No Analog Output channels found.");
+            //}
         }
 
 
         private void NumUD_Amplitude_ValueChanged(object sender, EventArgs e)
         {
-
+            WaveformGeneration();
         }
 
         private void NumUD_DcOffset_ValueChanged(object sender, EventArgs e)
         {
-
+            WaveformGeneration();
         }
 
         private void NumUD_DutyCycle_ValueChanged(object sender, EventArgs e)
         {
-
+            WaveformGeneration();
         }
 
         private void Cbx_Waveform_SelectedIndexChanged(object sender, EventArgs e)
@@ -145,31 +150,34 @@ namespace WindowsFormsApp1
                     NumUD_DutyCycle.Enabled = false;
                     NumUD_DcOffset.Enabled = true; 
                     MINvoltageRange = -10; 
-                    MAXvoltageRange = 10; 
+                    MAXvoltageRange = 10;
+                    WaveformGeneration();
+                    break;
+                case 1: // Square Wave
+                    NumUD_Amplitude.Enabled = true;
+                    NumUD_DutyCycle.Enabled = true;
+                    NumUD_DcOffset.Enabled = true;
+                    MINvoltageRange = -10;
+                    MAXvoltageRange = 10;
+                    WaveformGeneration();
                     break;
 
-                case 1: // Triangle Wave
+                case 2: // Triangle Wave
                     NumUD_Amplitude.Enabled = true; 
                     NumUD_DutyCycle.Enabled = true; 
                     NumUD_DcOffset.Enabled = true;
                     MINvoltageRange = -10;  
-                    MAXvoltageRange = 10;  
+                    MAXvoltageRange = 10;
+                    WaveformGeneration();
                     break;
 
-                case 2: // Sawtooth Wave
+                case 3: // Sawtooth Wave
                     NumUD_Amplitude.Enabled = true; 
                     NumUD_DutyCycle.Enabled = false; 
                     NumUD_DcOffset.Enabled = true; 
                     MINvoltageRange = -10; 
-                    MAXvoltageRange = 10;   
-                    break;
-
-                case 3: // Square Wave
-                    NumUD_Amplitude.Enabled = true;
-                    NumUD_DutyCycle.Enabled = true;
-                    NumUD_DcOffset.Enabled = true;
-                    MINvoltageRange = -10; 
                     MAXvoltageRange = 10;
+                    WaveformGeneration();
                     break;
 
                 case 4: // TTL Wave
@@ -178,6 +186,7 @@ namespace WindowsFormsApp1
                     NumUD_DcOffset.Enabled = false; 
                     MINvoltageRange = 0;
                     MAXvoltageRange = 5;
+                    WaveformGeneration();
                     break;
 
                 default:
@@ -193,24 +202,17 @@ namespace WindowsFormsApp1
         {
             if (buttonOnOff == false)
             {
-                // Generate the waveform when the output button is clicked
-                double amplitude = (double)NumUD_Amplitude.Value;
-                double frequency = (double)NumUD_Frequency.Value * (double)fRangeValue;
-                double dutyCycle = (double)NumUD_DutyCycle.Value;
-                double dcOffset = (double)NumUD_DcOffset.Value;
-
-                //maxSampRate = 
-               
+                buttonOnOff = true;
 
                 int sampleRate = MaxA2Drate;
 
-                double [] waveform = WaveformGeneration(amplitude, frequency, dutyCycle, dcOffset, sampleRate);
+                double [] waveform = WaveformGeneration();
 
                 Btn_Output.Text = "ON";
                 Btn_Output.BackColor = Color.Green;
                 buttonOnOff = true;
 
-                writer.WriteMultiSampleContinuous(true, waveform); // Write to DAQ continuously
+                //writer.WriteMultiSampleContinuous(true, waveform); // Write to DAQ continuously
             }
             else
             {
@@ -218,8 +220,8 @@ namespace WindowsFormsApp1
                 Btn_Output.BackColor = Color.Red;
                 buttonOnOff = false;
 
-                myTask.Stop();
-                writer.WriteSingleSample(false, 0); // Write 0 to stop the output
+                //myTask.Stop();
+                //writer.WriteSingleSample(false, 0); // Write 0 to stop the output
             }
         }
 
@@ -231,6 +233,9 @@ namespace WindowsFormsApp1
         private void NumUD_Frequency_ValueChanged(object sender, EventArgs e)
         {
             outputFrequency = NumUD_Frequency.Value * fRangeValue;
+            Lbl_ActFreqValue.Text = outputFrequency.ToString();
+
+            WaveformGeneration();
 
         }
 
@@ -244,6 +249,9 @@ namespace WindowsFormsApp1
                 Rbtn_1000Hz.Checked = false;
                 Rbtn_10000Hz.Checked = false;
                 fRangeValue = 1.00M;
+                outputFrequency = NumUD_Frequency.Value * fRangeValue;
+                Lbl_ActFreqValue.Text = outputFrequency.ToString();
+                WaveformGeneration();
 
             }
         }
@@ -258,6 +266,10 @@ namespace WindowsFormsApp1
                 Rbtn_1000Hz.Checked = false;
                 Rbtn_10000Hz.Checked = false;
                 fRangeValue = 10.00M;
+                outputFrequency = NumUD_Frequency.Value * fRangeValue;
+                Lbl_ActFreqValue.Text = outputFrequency.ToString();
+                WaveformGeneration();
+
             }
         }
 
@@ -271,6 +283,10 @@ namespace WindowsFormsApp1
                 Rbtn_1000Hz.Checked = false;
                 Rbtn_10000Hz.Checked = false;
                 fRangeValue = 100.00M;
+                outputFrequency = NumUD_Frequency.Value * fRangeValue;
+                Lbl_ActFreqValue.Text = outputFrequency.ToString();
+                WaveformGeneration();
+
             }
         }
 
@@ -284,6 +300,10 @@ namespace WindowsFormsApp1
                 Rbtn_1000Hz.Checked = true;
                 Rbtn_10000Hz.Checked = false;
                 fRangeValue = 1000.00M;
+                outputFrequency = NumUD_Frequency.Value * fRangeValue;
+                Lbl_ActFreqValue.Text = outputFrequency.ToString();
+                WaveformGeneration();
+
             }
         }
 
@@ -297,6 +317,9 @@ namespace WindowsFormsApp1
                 Rbtn_1000Hz.Checked = false;
                 Rbtn_10000Hz.Checked = true;
                 fRangeValue = 10000.00M;
+                outputFrequency = NumUD_Frequency.Value * fRangeValue;
+                Lbl_ActFreqValue.Text = outputFrequency.ToString();
+                WaveformGeneration();
             }
         }
 
@@ -304,111 +327,124 @@ namespace WindowsFormsApp1
         {
 
         }
+        //private double[] WaveformGeneration(double amplitude, double frequency, double dutyCycle, double dcOffset, int sampleRate)
 
-        private double[] WaveformGeneration(double amplitude, double frequency, double dutyCycle, double dcOffset, int sampleRate)
-        {
-            if (frequency > 120)
+        private double[] WaveformGeneration()
+        {   if (buttonOnOff == true)
             {
-                sampleRate = 250000;
+                double amplitude = (double)NumUD_Amplitude.Value;
+                double frequency = (double)NumUD_Frequency.Value * (double)fRangeValue;
+                double dutyCycle = (double)NumUD_DutyCycle.Value;
+                double dcOffset = (double)NumUD_DcOffset.Value;
+                int sampleRate;
+
+                if (frequency > 101)
+                {
+                    sampleRate = 833000;
+                }
+                else
+                {
+                    sampleRate = (int)(maxBufferSize * frequency);
+                }
+                //sampleRate = 25000;
+                //frequency = 1000;
+                int pointsPerCycle = (int)(sampleRate / frequency);
+
+                // Ensure the points per cycle does not exceed the max buffer size
+                if (pointsPerCycle > maxBufferSize)
+                {
+                    pointsPerCycle = maxBufferSize;
+                }
+
+                //Waveform array size needs to be smaller than the buffer
+                double[] waveform = new double[pointsPerCycle]; //Sets the waveform to the nmber of points per cycle
+
+                int highPoints = (int)(pointsPerCycle * (dutyCycle / 100)); //duty cycle is 1-99 (needs to be percent)
+                int lowPoints = pointsPerCycle - highPoints;
+                double actualFrequency = (double)sampleRate / pointsPerCycle;
+                Lbl_ActFreqValue.Text = actualFrequency.ToString(); //send actual frequency to label display
+
+                //use a SWITCH CASE to select which function to display
+                switch (Cbx_Waveform.SelectedIndex)
+                {
+                    case 0: //sine
+                        for (int i = 0; i < pointsPerCycle; i++)
+                        {
+                            waveform[i] = amplitude * Math.Sin(2 * Math.PI * frequency * i / sampleRate) + dcOffset;
+                        }
+                        break;
+
+                    case 1: //Square
+                            //Need to make sure duty cycle is incorperated
+
+                        for (int i = 0; i < pointsPerCycle; i++)
+                        {
+                            if (i < highPoints)
+                            {
+                                waveform[i] = amplitude + dcOffset; //Sets the high level amplitude (positive)
+                            }
+                            else
+                            {
+                                waveform[i] = -amplitude + dcOffset; //Sets the lower level of the amplitude (with DC off) (Neg amp)
+                            }
+                        }
+                        break;
+
+                    case 2: //Triangle
+
+                        for (int i = 0; i < pointsPerCycle; i++)
+                        {
+                            if (i < highPoints) // Rising part of the wave
+                                                // 1 is the normalization factor 
+                            {
+                                waveform[i] = amplitude * (2.0 * i / highPoints - 1) + dcOffset;
+                            }
+                            else
+                            {
+                                //decrease from +Amplitude to -Amplitude
+                                waveform[i] = amplitude * (1 - 2.0 * (i - highPoints) / lowPoints) + dcOffset;
+                            }
+                        }
+                        break;
+
+                    case 3: //Sawtooth
+                        for (int i = 0; i < pointsPerCycle; i++)
+                        {
+                            //Sawtooth ramps up and then quickly resets
+                            waveform[i] = amplitude * (2.0 * i / pointsPerCycle - 1) + dcOffset;
+
+                            // After reaching the maximum value, it resets back to -amplitude
+                            if (i == pointsPerCycle - 1)
+                            {
+                                waveform[i] = -amplitude + dcOffset;  // Reset to -amplitude after one full cycle
+                            }
+                        }
+                        break;
+
+                    case 4: // TTL Wave
+                        for (int i = 0; i < pointsPerCycle; i++)
+                        {
+                            if (i < highPoints) // High level with duty cycle and offset
+                            {
+                                waveform[i] = 5 + dcOffset;
+                            }
+                            else //Low level with duty cycle and offset
+                            {
+                                waveform[i] = 0 + dcOffset;
+                            }
+                        }
+                        break;
+
+                }
+
+                // Plot the waveform on the chart
+                PlotWaveform(waveform);
+                return waveform;
             }
-            else
-            {
-                sampleRate = (int)(maxBufferSize * frequency);
-            }
+            else { double [] zeroWaveform = new double[0];
+                return zeroWaveform; }
 
-            int pointsPerCycle = (int)(sampleRate / frequency);
-
-            // Ensure the points per cycle does not exceed the max buffer size
-            if (pointsPerCycle > maxBufferSize)
-            {
-                pointsPerCycle = maxBufferSize;
-            }
-
-            //Waveform array size needs to be smaller than the buffer
-            double[] waveform= new double[pointsPerCycle]; //Sets the waveform to the nmber of points per cycle
-
-            int highPoints = (int)(pointsPerCycle * (dutyCycle/100)); //duty cycle is 1-99 (needs to be percent)
-            int lowPoints = pointsPerCycle - highPoints;
-            double actualFrequency = (double)sampleRate / pointsPerCycle;
-            Lbl_ActFreqValue.Text = actualFrequency.ToString(); //send actual frequency to label display
-
-            //use a SWITCH CASE to select which function to display
-            switch (Cbx_Waveform.SelectedIndex)
-            {
-                case 0: //sine
-                    for (int i = 0; i < pointsPerCycle; i++)
-                    {
-                        waveform[i] = amplitude * Math.Sin(2 * Math.PI * frequency * i / sampleRate) + dcOffset;
-                    }
-                break;
-
-                case 1: //Square
-                    //Need to make sure duty cycle is incorperated
-
-                    for (int i = 0; i < pointsPerCycle; i++)
-                    {
-                        if (i < highPoints)
-                        {
-                            waveform[i] = amplitude + dcOffset; //Sets the high level amplitude (positive)
-                        }
-                        else
-                        {
-                            waveform[i] = -amplitude + dcOffset; //Sets the lower level of the amplitude (with DC off) (Neg amp)
-                        }
-                    }
-                    break;
-
-                case 2: //Triangle
-
-                    for (int i = 0; i < pointsPerCycle; i++)
-                    {
-                        if (i < highPoints) // Rising part of the wave
-                            // 1 is the normalization factor 
-                        {
-                            waveform[i] = amplitude * (2.0 * i / highPoints - 1) + dcOffset;
-                        }
-                        else
-                        {
-                            //decrease from +Amplitude to -Amplitude
-                            waveform[i] = amplitude * (1 - 2.0 * (i - highPoints) / lowPoints) + dcOffset;
-                        }
-                    }
-                 break;
-
-                case 3: //Sawtooth
-                    for (int i = 0; i < pointsPerCycle; i++)
-                    {
-                        //Sawtooth ramps up and then quickly resets
-                        waveform[i] = amplitude * (2.0 * i / pointsPerCycle - 1) + dcOffset;
-
-                        // After reaching the maximum value, it resets back to -amplitude
-                        if (i == pointsPerCycle - 1)
-                        {
-                            waveform[i] = -amplitude + dcOffset;  // Reset to -amplitude after one full cycle
-                        }
-                    }
-                    break;
-
-                case 4: // TTL Wave
-                    for (int i = 0; i < pointsPerCycle; i++)
-                    {
-                        if (i < highPoints) // High level with duty cycle and offset
-                        {
-                            waveform[i] = 5 + dcOffset; 
-                        }
-                        else //Low level with duty cycle and offset
-                        {
-                            waveform[i] = 0 + dcOffset;
-                        }
-                    }
-                break;
-
-            }
-
-            // Plot the waveform on the chart
-            PlotWaveform(waveform);
-
-            return waveform;
+           
         }
 
         private void PlotWaveform(double[] waveform)
