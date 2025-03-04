@@ -28,8 +28,8 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea18 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend18 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
             this.Btn_Output = new System.Windows.Forms.Button();
             this.Btn_Quit = new System.Windows.Forms.Button();
             this.Gbx_OutputVoltage = new System.Windows.Forms.GroupBox();
@@ -39,11 +39,11 @@
             this.Lbl_DutyCycle = new System.Windows.Forms.Label();
             this.Lbl_Waveform = new System.Windows.Forms.Label();
             this.Gbx_FreqRange = new System.Windows.Forms.GroupBox();
-            this.Rbtn_1Hz = new System.Windows.Forms.RadioButton();
-            this.Rbtn_10Hz = new System.Windows.Forms.RadioButton();
-            this.Rbtn_100Hz = new System.Windows.Forms.RadioButton();
-            this.Rbtn_1000Hz = new System.Windows.Forms.RadioButton();
             this.Rbtn_10000Hz = new System.Windows.Forms.RadioButton();
+            this.Rbtn_1000Hz = new System.Windows.Forms.RadioButton();
+            this.Rbtn_100Hz = new System.Windows.Forms.RadioButton();
+            this.Rbtn_10Hz = new System.Windows.Forms.RadioButton();
+            this.Rbtn_1Hz = new System.Windows.Forms.RadioButton();
             this.Lbl_ActualFreq = new System.Windows.Forms.Label();
             this.Lbl_ActFreqValue = new System.Windows.Forms.Label();
             this.Cbx_Devices = new System.Windows.Forms.ComboBox();
@@ -70,6 +70,7 @@
             this.Btn_Output.TabIndex = 0;
             this.Btn_Output.Text = "Output";
             this.Btn_Output.UseVisualStyleBackColor = true;
+            this.Btn_Output.Click += new System.EventHandler(this.Btn_Output_Click);
             this.Btn_Output.MouseClick += new System.Windows.Forms.MouseEventHandler(this.Btn_Output_MouseClick);
             // 
             // Btn_Quit
@@ -159,41 +160,17 @@
             this.Gbx_FreqRange.TabStop = false;
             this.Gbx_FreqRange.Text = "Frequency Range:";
             // 
-            // Rbtn_1Hz
+            // Rbtn_10000Hz
             // 
-            this.Rbtn_1Hz.AutoSize = true;
-            this.Rbtn_1Hz.Location = new System.Drawing.Point(6, 21);
-            this.Rbtn_1Hz.Name = "Rbtn_1Hz";
-            this.Rbtn_1Hz.Size = new System.Drawing.Size(57, 18);
-            this.Rbtn_1Hz.TabIndex = 0;
-            this.Rbtn_1Hz.TabStop = true;
-            this.Rbtn_1Hz.Text = "x1 Hz";
-            this.Rbtn_1Hz.UseVisualStyleBackColor = true;
-            this.Rbtn_1Hz.CheckedChanged += new System.EventHandler(this.Rbtn_1Hz_CheckedChanged);
-            // 
-            // Rbtn_10Hz
-            // 
-            this.Rbtn_10Hz.AutoSize = true;
-            this.Rbtn_10Hz.Location = new System.Drawing.Point(6, 45);
-            this.Rbtn_10Hz.Name = "Rbtn_10Hz";
-            this.Rbtn_10Hz.Size = new System.Drawing.Size(64, 18);
-            this.Rbtn_10Hz.TabIndex = 1;
-            this.Rbtn_10Hz.TabStop = true;
-            this.Rbtn_10Hz.Text = "x10 Hz";
-            this.Rbtn_10Hz.UseVisualStyleBackColor = true;
-            this.Rbtn_10Hz.CheckedChanged += new System.EventHandler(this.Rbtn_10Hz_CheckedChanged);
-            // 
-            // Rbtn_100Hz
-            // 
-            this.Rbtn_100Hz.AutoSize = true;
-            this.Rbtn_100Hz.Location = new System.Drawing.Point(6, 69);
-            this.Rbtn_100Hz.Name = "Rbtn_100Hz";
-            this.Rbtn_100Hz.Size = new System.Drawing.Size(71, 18);
-            this.Rbtn_100Hz.TabIndex = 2;
-            this.Rbtn_100Hz.TabStop = true;
-            this.Rbtn_100Hz.Text = "x100 Hz";
-            this.Rbtn_100Hz.UseVisualStyleBackColor = true;
-            this.Rbtn_100Hz.CheckedChanged += new System.EventHandler(this.Rbtn_100Hz_CheckedChanged);
+            this.Rbtn_10000Hz.AutoSize = true;
+            this.Rbtn_10000Hz.Location = new System.Drawing.Point(6, 117);
+            this.Rbtn_10000Hz.Name = "Rbtn_10000Hz";
+            this.Rbtn_10000Hz.Size = new System.Drawing.Size(71, 18);
+            this.Rbtn_10000Hz.TabIndex = 4;
+            this.Rbtn_10000Hz.TabStop = true;
+            this.Rbtn_10000Hz.Text = "x10 kHz";
+            this.Rbtn_10000Hz.UseVisualStyleBackColor = true;
+            this.Rbtn_10000Hz.CheckedChanged += new System.EventHandler(this.Rbtn_10000Hz_CheckedChanged);
             // 
             // Rbtn_1000Hz
             // 
@@ -207,17 +184,41 @@
             this.Rbtn_1000Hz.UseVisualStyleBackColor = true;
             this.Rbtn_1000Hz.CheckedChanged += new System.EventHandler(this.Rbtn_1000Hz_CheckedChanged);
             // 
-            // Rbtn_10000Hz
+            // Rbtn_100Hz
             // 
-            this.Rbtn_10000Hz.AutoSize = true;
-            this.Rbtn_10000Hz.Location = new System.Drawing.Point(6, 117);
-            this.Rbtn_10000Hz.Name = "Rbtn_10000Hz";
-            this.Rbtn_10000Hz.Size = new System.Drawing.Size(71, 18);
-            this.Rbtn_10000Hz.TabIndex = 4;
-            this.Rbtn_10000Hz.TabStop = true;
-            this.Rbtn_10000Hz.Text = "x10 kHz";
-            this.Rbtn_10000Hz.UseVisualStyleBackColor = true;
-            this.Rbtn_10000Hz.CheckedChanged += new System.EventHandler(this.Rbtn_10000Hz_CheckedChanged);
+            this.Rbtn_100Hz.AutoSize = true;
+            this.Rbtn_100Hz.Location = new System.Drawing.Point(6, 69);
+            this.Rbtn_100Hz.Name = "Rbtn_100Hz";
+            this.Rbtn_100Hz.Size = new System.Drawing.Size(71, 18);
+            this.Rbtn_100Hz.TabIndex = 2;
+            this.Rbtn_100Hz.TabStop = true;
+            this.Rbtn_100Hz.Text = "x100 Hz";
+            this.Rbtn_100Hz.UseVisualStyleBackColor = true;
+            this.Rbtn_100Hz.CheckedChanged += new System.EventHandler(this.Rbtn_100Hz_CheckedChanged);
+            // 
+            // Rbtn_10Hz
+            // 
+            this.Rbtn_10Hz.AutoSize = true;
+            this.Rbtn_10Hz.Location = new System.Drawing.Point(6, 45);
+            this.Rbtn_10Hz.Name = "Rbtn_10Hz";
+            this.Rbtn_10Hz.Size = new System.Drawing.Size(64, 18);
+            this.Rbtn_10Hz.TabIndex = 1;
+            this.Rbtn_10Hz.TabStop = true;
+            this.Rbtn_10Hz.Text = "x10 Hz";
+            this.Rbtn_10Hz.UseVisualStyleBackColor = true;
+            this.Rbtn_10Hz.CheckedChanged += new System.EventHandler(this.Rbtn_10Hz_CheckedChanged);
+            // 
+            // Rbtn_1Hz
+            // 
+            this.Rbtn_1Hz.AutoSize = true;
+            this.Rbtn_1Hz.Location = new System.Drawing.Point(6, 21);
+            this.Rbtn_1Hz.Name = "Rbtn_1Hz";
+            this.Rbtn_1Hz.Size = new System.Drawing.Size(57, 18);
+            this.Rbtn_1Hz.TabIndex = 0;
+            this.Rbtn_1Hz.TabStop = true;
+            this.Rbtn_1Hz.Text = "x1 Hz";
+            this.Rbtn_1Hz.UseVisualStyleBackColor = true;
+            this.Rbtn_1Hz.CheckedChanged += new System.EventHandler(this.Rbtn_1Hz_CheckedChanged);
             // 
             // Lbl_ActualFreq
             // 
@@ -252,12 +253,6 @@
             this.Cbx_Waveform.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.Cbx_Waveform.Font = new System.Drawing.Font("Mongolian Baiti", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Cbx_Waveform.FormattingEnabled = true;
-            this.Cbx_Waveform.Items.AddRange(new object[] {
-            "Sine",
-            "Triangle",
-            "Saw-Tooth",
-            "Square",
-            "TTL"});
             this.Cbx_Waveform.Location = new System.Drawing.Point(132, 136);
             this.Cbx_Waveform.Name = "Cbx_Waveform";
             this.Cbx_Waveform.Size = new System.Drawing.Size(98, 19);
@@ -313,10 +308,10 @@
             // 
             // cht_Data
             // 
-            chartArea18.Name = "ChartArea1";
-            this.cht_Data.ChartAreas.Add(chartArea18);
-            legend18.Name = "Legend1";
-            this.cht_Data.Legends.Add(legend18);
+            chartArea1.Name = "ChartArea1";
+            this.cht_Data.ChartAreas.Add(chartArea1);
+            legend1.Name = "Legend1";
+            this.cht_Data.Legends.Add(legend1);
             this.cht_Data.Location = new System.Drawing.Point(248, 24);
             this.cht_Data.Name = "cht_Data";
             this.cht_Data.Size = new System.Drawing.Size(540, 414);
