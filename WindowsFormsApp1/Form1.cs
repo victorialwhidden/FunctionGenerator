@@ -5,17 +5,18 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
-//using NationalInstruments.DAQmx;
+using NationalInstruments.DAQmx;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
+using NationalInstruments;
 
 namespace WindowsFormsApp1
 {
     public partial class Form1 : Form
     {
 
-        //private Task myTask;
-        //private AnalogSingleChannelWriter writer;
+        private Task myTask;
+        private AnalogSingleChannelWriter writer;
 
         private int MaxA2Drate = 833000;
         private int maxBufferSize = 8191; //Fix this buffer value
@@ -25,7 +26,7 @@ namespace WindowsFormsApp1
         private decimal outputFrequency;
         private decimal fRangeValue;
         private string[] aoChannels;
-        //private string[] aoChannelNames;
+        private string[] aoChannelNames;
 
         public Form1()
         {
@@ -45,9 +46,11 @@ namespace WindowsFormsApp1
             waveformSeries.ChartType = SeriesChartType.Line;
             waveformSeries.BorderWidth = 2;
             cht_Data.Series.Add(waveformSeries);
+            cht_Data.ChartAreas[0].AxisY.Maximum = 10;
+            cht_Data.ChartAreas[0].AxisY.Minimum = -10;
 
             //Get device list
-            //PopulateDevices();
+            PopulateDevices();
 
             //Add all the waves to the combobox
             Cbx_Waveform.Items.Add("Sine");
@@ -61,28 +64,28 @@ namespace WindowsFormsApp1
             Rbtn_1000Hz.Checked = true;
             NumUD_Frequency.Value = 10;
 
-            //try
-            //{
-            //    myTask = new Task();
-            //    if (myTask != null)
-            //    {
-            //        for (int i = 0; i < aoChannels.Length; i++)
-            //        {
-            //            //need to create an AO channel for the task from the selected channel of the combobox
-            //            string channels = Cbx_Devices.Items[i].ToString();
-            //            myTask.AOChannels.CreateVoltageChannel(channels, "", -10, 10, AOVoltageUnits.Volts);
-            //        }
-            //    }
-            //}
-            //catch (Exception ex) { MessageBox.Show("There was an error setting up the Analog Channels", ex.Message); }
+            try
+            {
+                myTask = new Task();
+                if (myTask != null)
+                {
+                    for (int i = 0; i < aoChannels.Length; i++)
+                    {
+                        //need to create an AO channel for the task from the selected channel of the combobox
+                        string channels = Cbx_Devices.Items[i].ToString();
+                        myTask.AOChannels.CreateVoltageChannel(channels, "", -10, 10, AOVoltageUnits.Volts);
+                    }
+                }
+            }
+            catch (Exception ex) { MessageBox.Show("There was an error setting up the Analog Channels", ex.Message); }
 
             //FINISH DOING STUFF WITH THE TASK
             //NEED TO WTACH THE SAMPLE RATE
 
-            //myTask.Timing.ConfigureSampleClock("", sampleRate, SampleClockActiveEdge.Rising, SampleQuantityMode.ContinuousSamples, samplesPerChannel)
-            //myTask.AOChannels.All.UseOnlyOnBoardMemory = true;
+           // myTask.Timing.ConfigureSampleClock("", sampleRate, SampleClockActiveEdge.Rising, SampleQuantityMode.ContinuousSamples, samplesPerChannel);
+            myTask.AOChannels.All.UseOnlyOnBoardMemory = true;
 
-            //writer = new AnalogSingleChannelWriter(myTask.Stream);
+            writer = new AnalogSingleChannelWriter(myTask.Stream);
 
             //Default = sine
             NumUD_Amplitude.Value = 5;
@@ -105,22 +108,22 @@ namespace WindowsFormsApp1
             Cbx_Devices.Items.Clear();
 
             //get all channels for AO
-            //aoChannels = DaqSystem.Local.GetPhysicalChannels(PhysicalChannelTypes.AO, PhysicalChannelAccess.External);
+            aoChannels = DaqSystem.Local.GetPhysicalChannels(PhysicalChannelTypes.AO, PhysicalChannelAccess.External);
 
-            ////Check for channels and add to combobox
-            //if (aoChannels.Length > 0)
-            //{
-            //    // Iterate over all the AO channels and add them to the ComboBox
-            //    foreach (string channel in aoChannels)
-            //    {
-            //        Cbx_Devices.Items.Add(channel);
-            //    }
-            //    Cbx_Devices.SelectedIndex = 0;
-            //}
-            //else
-            //{
-            //    MessageBox.Show("No Analog Output channels found.");
-            //}
+            //Check for channels and add to combobox
+            if (aoChannels.Length > 0)
+            {
+                // Iterate over all the AO channels and add them to the ComboBox
+                foreach (string channel in aoChannels)
+                {
+                    Cbx_Devices.Items.Add(channel);
+                }
+                Cbx_Devices.SelectedIndex = 0;
+            }
+            else
+            {
+                MessageBox.Show("No Analog Output channels found.");
+            }
         }
 
 
@@ -212,7 +215,7 @@ namespace WindowsFormsApp1
                 Btn_Output.BackColor = Color.Green;
                 buttonOnOff = true;
 
-                //writer.WriteMultiSampleContinuous(true, waveform); // Write to DAQ continuously
+                writer.WriteMultiSample(true, waveform);
             }
             else
             {
@@ -220,8 +223,8 @@ namespace WindowsFormsApp1
                 Btn_Output.BackColor = Color.Red;
                 buttonOnOff = false;
 
-                //myTask.Stop();
-                //writer.WriteSingleSample(false, 0); // Write 0 to stop the output
+                myTask.Stop();
+                writer.WriteSingleSample(true, 0);
             }
         }
 
@@ -249,8 +252,6 @@ namespace WindowsFormsApp1
                 Rbtn_1000Hz.Checked = false;
                 Rbtn_10000Hz.Checked = false;
                 fRangeValue = 1.00M;
-                outputFrequency = NumUD_Frequency.Value * fRangeValue;
-                Lbl_ActFreqValue.Text = outputFrequency.ToString();
                 WaveformGeneration();
 
             }
@@ -266,8 +267,6 @@ namespace WindowsFormsApp1
                 Rbtn_1000Hz.Checked = false;
                 Rbtn_10000Hz.Checked = false;
                 fRangeValue = 10.00M;
-                outputFrequency = NumUD_Frequency.Value * fRangeValue;
-                Lbl_ActFreqValue.Text = outputFrequency.ToString();
                 WaveformGeneration();
 
             }
@@ -283,8 +282,6 @@ namespace WindowsFormsApp1
                 Rbtn_1000Hz.Checked = false;
                 Rbtn_10000Hz.Checked = false;
                 fRangeValue = 100.00M;
-                outputFrequency = NumUD_Frequency.Value * fRangeValue;
-                Lbl_ActFreqValue.Text = outputFrequency.ToString();
                 WaveformGeneration();
 
             }
@@ -300,8 +297,6 @@ namespace WindowsFormsApp1
                 Rbtn_1000Hz.Checked = true;
                 Rbtn_10000Hz.Checked = false;
                 fRangeValue = 1000.00M;
-                outputFrequency = NumUD_Frequency.Value * fRangeValue;
-                Lbl_ActFreqValue.Text = outputFrequency.ToString();
                 WaveformGeneration();
 
             }
@@ -317,8 +312,6 @@ namespace WindowsFormsApp1
                 Rbtn_1000Hz.Checked = false;
                 Rbtn_10000Hz.Checked = true;
                 fRangeValue = 10000.00M;
-                outputFrequency = NumUD_Frequency.Value * fRangeValue;
-                Lbl_ActFreqValue.Text = outputFrequency.ToString();
                 WaveformGeneration();
             }
         }
@@ -327,7 +320,6 @@ namespace WindowsFormsApp1
         {
 
         }
-        //private double[] WaveformGeneration(double amplitude, double frequency, double dutyCycle, double dcOffset, int sampleRate)
 
         private double[] WaveformGeneration()
         {   if (buttonOnOff == true)
@@ -346,8 +338,6 @@ namespace WindowsFormsApp1
                 {
                     sampleRate = (int)(maxBufferSize * frequency);
                 }
-                //sampleRate = 25000;
-                //frequency = 1000;
                 int pointsPerCycle = (int)(sampleRate / frequency);
 
                 // Ensure the points per cycle does not exceed the max buffer size
