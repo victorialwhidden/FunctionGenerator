@@ -19,6 +19,8 @@ namespace WindowsFormsApp1
         private AnalogSingleChannelWriter writer;
 
         private int MaxA2Drate = 833000;
+        private int sampleRate;
+        private int pointsPerCycle;
         private int maxBufferSize = 8191; //Fix this buffer value
         private int MAXvoltageRange;
         private int MINvoltageRange;
@@ -26,7 +28,6 @@ namespace WindowsFormsApp1
         private decimal outputFrequency;
         private decimal fRangeValue;
         private string[] aoChannels;
-        private string[] aoChannelNames;
 
         public Form1()
         {
@@ -61,7 +62,9 @@ namespace WindowsFormsApp1
 
             //Make sine 100hz default
             Cbx_Waveform.SelectedIndex = 0;
+            sampleRate = 833000;
             Rbtn_1000Hz.Checked = true;
+            pointsPerCycle = (int)(sampleRate / 1000);
             NumUD_Frequency.Value = 10;
 
             try
@@ -69,22 +72,14 @@ namespace WindowsFormsApp1
                 myTask = new Task();
                 if (myTask != null)
                 {
-                    for (int i = 0; i < aoChannels.Length; i++)
-                    {
-                        //need to create an AO channel for the task from the selected channel of the combobox
-                        string channels = Cbx_Devices.Items[i].ToString();
+                        string channels = Cbx_Devices.SelectedItem.ToString();
                         myTask.AOChannels.CreateVoltageChannel(channels, "", -10, 10, AOVoltageUnits.Volts);
-                    }
                 }
             }
             catch (Exception ex) { MessageBox.Show("There was an error setting up the Analog Channels", ex.Message); }
 
-            //FINISH DOING STUFF WITH THE TASK
-            //NEED TO WTACH THE SAMPLE RATE
-
-           // myTask.Timing.ConfigureSampleClock("", sampleRate, SampleClockActiveEdge.Rising, SampleQuantityMode.ContinuousSamples, samplesPerChannel);
+            myTask.Timing.ConfigureSampleClock("", sampleRate, SampleClockActiveEdge.Rising, SampleQuantityMode.ContinuousSamples, pointsPerCycle);
             myTask.AOChannels.All.UseOnlyOnBoardMemory = true;
-
             writer = new AnalogSingleChannelWriter(myTask.Stream);
 
             //Default = sine
@@ -215,7 +210,6 @@ namespace WindowsFormsApp1
                 Btn_Output.BackColor = Color.Green;
                 buttonOnOff = true;
 
-                writer.WriteMultiSample(true, waveform);
             }
             else
             {
@@ -224,13 +218,17 @@ namespace WindowsFormsApp1
                 buttonOnOff = false;
 
                 myTask.Stop();
-                writer.WriteSingleSample(true, 0);
+                double[] zeroWave = new double[pointsPerCycle];
+
+                for (int i = 0; i < pointsPerCycle; i++) { zeroWave[i] = 0; }
+                writer.WriteMultiSample(false, zeroWave);
+                myTask.Start();
             }
         }
 
         private void Btn_Quit_MouseClick(object sender, MouseEventArgs e)
         {
-            //Zero out the voltage and dispose of the task (if it is not already disposed of) when closing the program. 
+            Application.Exit();
         }
 
         private void NumUD_Frequency_ValueChanged(object sender, EventArgs e)
@@ -322,13 +320,13 @@ namespace WindowsFormsApp1
         }
 
         private double[] WaveformGeneration()
-        {   if (buttonOnOff == true)
+        {
+            if (buttonOnOff == true)
             {
                 double amplitude = (double)NumUD_Amplitude.Value;
                 double frequency = (double)NumUD_Frequency.Value * (double)fRangeValue;
                 double dutyCycle = (double)NumUD_DutyCycle.Value;
                 double dcOffset = (double)NumUD_DcOffset.Value;
-                int sampleRate;
 
                 if (frequency > 101)
                 {
@@ -338,7 +336,7 @@ namespace WindowsFormsApp1
                 {
                     sampleRate = (int)(maxBufferSize * frequency);
                 }
-                int pointsPerCycle = (int)(sampleRate / frequency);
+                pointsPerCycle = (int)(sampleRate / frequency);
 
                 // Ensure the points per cycle does not exceed the max buffer size
                 if (pointsPerCycle > maxBufferSize)
@@ -424,17 +422,27 @@ namespace WindowsFormsApp1
                             }
                         }
                         break;
-
                 }
 
                 // Plot the waveform on the chart
                 PlotWaveform(waveform);
+
+                myTask.Stop();
+
+                for (int i = 0; i < waveform.Length; i++)
+                {
+                    if (waveform[i] > 10)
+                    { waveform[i] = 10; }
+                    if (waveform[i] < -10)
+                    { waveform[i] = -10; }
+                }
+
+                writer.WriteMultiSample(false, waveform);
+                myTask.Start();
                 return waveform;
             }
             else { double [] zeroWaveform = new double[0];
                 return zeroWaveform; }
-
-           
         }
 
         private void PlotWaveform(double[] waveform)
@@ -444,6 +452,19 @@ namespace WindowsFormsApp1
             for (int i = 0; i < waveform.Length; i++)
             {
                 cht_Data.Series[0].Points.AddXY(i, waveform[i]);
+            }
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (myTask != null) 
+            {
+                myTask.Stop();
+                double[] zeroWave = new double[pointsPerCycle];
+                for (int i = 0; i < pointsPerCycle; i++) { zeroWave[i] = 0; }
+                writer.WriteMultiSample(false, zeroWave);
+                myTask.Start();
+                myTask.Dispose();
             }
         }
     }
